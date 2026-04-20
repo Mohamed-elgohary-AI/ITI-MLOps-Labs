@@ -20,6 +20,21 @@ Install dependencies:
 uv sync
 ```
 
+## Changes Done in Lab 0
+
+### Process data pipeline
+```Python
+
+X_processed, X_test_procesed=preprocess_data(X, y, X_test, y_test, logger)
+
+```
+
+It is a function in  `process_data.py` where it imputes missing values and converts categorical values into onehot encoded columns.
+
+### Changed Dataset to Titanic
+
+Modifed multiple files to fetch the competition dataset from `kagglehub` API.
+
 ## Project Structure
 
 ```
