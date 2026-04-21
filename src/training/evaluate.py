@@ -13,7 +13,7 @@ def evaluate(X_test, y_test, model_name: str, logger) -> None:
     with open(os.path.join(MODEL_PATH, model_name, "final_model.pkl"), "rb") as pkl:
         final_model = pickle.load(pkl)
     with open(
-        os.path.join(MODEL_PATH, model_name, "model_target_translator.pkl"),
+        os.path.join(MODEL_PATH, "fake", "model_target_translator.pkl"),
         "rb",
     ) as pkl:
         translator = pickle.load(pkl)
@@ -32,7 +32,5 @@ def evaluate(X_test, y_test, model_name: str, logger) -> None:
     logger.info("saving evaluation report")
     if not os.path.exists(os.path.join(REPORT_PATH, model_name)):
         os.makedirs(os.path.join(REPORT_PATH, model_name))
-    with open(
-        os.path.join(REPORT_PATH, model_name, "evaluation_report.json"), "w"
-    ) as js:
+    with open(os.path.join(REPORT_PATH, model_name, "evaluation_report.json"), "w") as js:
         json.dump(evaluation_report, js, indent=4)

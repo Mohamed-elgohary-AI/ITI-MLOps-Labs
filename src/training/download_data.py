@@ -1,7 +1,9 @@
 import os
-import kagglehub
 import shutil
+
 from dotenv import load_dotenv
+import kagglehub
+
 RAW_DATA_DIR = os.path.join("data", "raw")
 
 
@@ -19,7 +21,7 @@ def download_iris_data(logger) -> str:
 
     if not csv_files:
         csv_files = files
-    
+
     os.makedirs(RAW_DATA_DIR, exist_ok=True)
 
     for csv_file in csv_files:
@@ -27,7 +29,7 @@ def download_iris_data(logger) -> str:
         destination = os.path.join(RAW_DATA_DIR, csv_file)  # keeps original filename
         shutil.copy(source_file, destination)
         logger.info(f"Copied {csv_file} to {destination}")
-    
+
     shutil.copy(source_file, destination)
     print(destination)
 

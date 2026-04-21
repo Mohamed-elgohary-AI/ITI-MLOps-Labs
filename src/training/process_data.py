@@ -1,10 +1,11 @@
 import os
+from typing import Any, Tuple
 
 import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 
 SOURCE = os.path.join("data", "raw")
@@ -23,38 +24,34 @@ def read_process_data(
     train_df, test_df = train_test_split(
         df, test_size=0.15, random_state=42, stratify=df[target_col]
     )
-    train_df.to_parquet(
-        os.path.join(DESTINATION, f"{file_name}-train.parquet"), engine="pyarrow"
-    )
-    test_df.to_parquet(
-        os.path.join(DESTINATION, f"{file_name}-test.parquet"), engine="pyarrow"
-    )
-
+    train_df.to_parquet(os.path.join(DESTINATION, f"{file_name}-train.parquet"), engine="pyarrow")
+    test_df.to_parquet(os.path.join(DESTINATION, f"{file_name}-test.parquet"), engine="pyarrow")
 
 
 def preprocess_data(
-    X: pd.DataFrame,
-    y: pd.DataFrame,
-    X_test: pd.DataFrame,
-    y_test: pd.DataFrame,
-    logger
-) -> pd.DataFrame:
+    X: pd.DataFrame, y: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, logger
+) -> Tuple[Any, Any]:
     logger.info("Data Preprocessing Pipeline Started")
-    num_cols=X.select_dtypes(include=['int','float']).columns
-    cat_cols=X.select_dtypes(include='object').columns
+    num_cols = X.select_dtypes(include=["int", "float"]).columns
+    cat_cols = X.select_dtypes(include="object").columns
 
-    preprocessor = ColumnTransformer([
-        ("num", SimpleImputer(strategy="mean"), num_cols),
-        ("cat", Pipeline([
-            ("imputer", SimpleImputer(strategy="most_frequent")),
-            ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
-        ]), cat_cols)
-    ])
+    preprocessor = ColumnTransformer(
+        [
+            ("num", SimpleImputer(strategy="mean"), num_cols),
+            (
+                "cat",
+                Pipeline(
+                    [
+                        ("imputer", SimpleImputer(strategy="most_frequent")),
+                        ("encoder", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                    ]
+                ),
+                cat_cols,
+            ),
+        ]
+    )
 
     X_train_processed = preprocessor.fit_transform(X)
     X_test_processed = preprocessor.transform(X_test)
 
     return X_train_processed, X_test_processed
-
-
-    

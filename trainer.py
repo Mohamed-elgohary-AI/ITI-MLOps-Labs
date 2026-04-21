@@ -11,8 +11,9 @@ def main(logger) -> None:
     read_process_data("train", "PassengerId", "Survived", logger)
     X, y, X_test, y_test = encode_target_col("train", "Survived", "fake", logger)
     X_processed, X_test_procesed=preprocess_data(X, y, X_test, y_test, logger)
-    trainer(X_processed, y, "fake", logger)
-    evaluate(X_test_procesed, y_test, "fake", logger)
+    trainer(X_processed, y, "lr","xgb", logger)
+    evaluate(X_test_procesed, y_test, "lr", logger)
+    evaluate(X_test_procesed, y_test, "xgb", logger)
     logger.info("Training finished")
 
 

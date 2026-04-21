@@ -21,6 +21,7 @@ dependencies = [
     "ruff",
     "scikit-learn>=1.6.0,<2",
     "skore>=0.8.2,<1",
+    "xgboost>=3.2.0",
 ]
 
 [project.optional-dependencies]

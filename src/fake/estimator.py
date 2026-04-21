@@ -1,7 +1,7 @@
-import numpy as np # type: ignore
-from sklearn.base import BaseEstimator, ClassifierMixin # type: ignore
-from sklearn.utils.multiclass import unique_labels # type: ignore
-from sklearn.utils.validation import check_is_fitted, validate_data # type: ignore
+import numpy as np  # type: ignore
+from sklearn.base import BaseEstimator, ClassifierMixin  # type: ignore
+from sklearn.utils.multiclass import unique_labels  # type: ignore
+from sklearn.utils.validation import check_is_fitted, validate_data  # type: ignore
 
 
 class FakeEstimator(BaseEstimator, ClassifierMixin):
@@ -28,5 +28,3 @@ class FakeEstimator(BaseEstimator, ClassifierMixin):
         probs = self.predict_proba(X)
         predictions = np.argmax(probs, axis=1)
         return predictions
-    
-    
