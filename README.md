@@ -35,6 +35,18 @@ It is a function in  `process_data.py` where it imputes missing values and conve
 
 Modifed multiple files to fetch the competition dataset from `kagglehub` API.
 
+### Added Logistic Regression
+To add the logistic regression, two functions `objective_lr` and `bayesian_hyperparameter_lr` functions needed to be created. `objective_lr` was created to be the new objective function of the bayesian tuning. `bayesian_hyperparameter_lr` function goes through the trails of the tuning and fits the model with the correct hyperparameters.
+
+In addition, since logistic regression works better with standradized data, I added a pipeline function to `StandardScale` the  data before inputing it in the model.
+
+### Added XGBoost
+Did the same as the above but with XGBoost related hyperparameters.
+
+## Diagram of The New Pipeline
+<img width="1602" height="582" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/2cf48756-6473-4689-a080-333374947307" />
+
+
 ## Project Structure
 
 ```
