@@ -1,0 +1,42 @@
+model:
+  name: xgb
+  save_dir: xgb_model
+  space:
+    n_estimators:
+      _target_: hyperopt.hp.choice
+      label: n_estimators
+      options:
+      - 100
+      - 200
+      - 300
+    max_depth:
+      _target_: hyperopt.hp.randint
+      label: max_depth
+      upper: 10
+    learning_rate:
+      _target_: hyperopt.hp.loguniform
+      label: learning_rate
+      low: -5
+      high: 0
+    subsample:
+      _target_: hyperopt.hp.uniform
+      label: subsample
+      low: 0.6
+      high: 1.0
+data:
+  raw_data_path: data/raw
+  processed_data_path: data/processed
+  file_name: train
+  id_col: PassengerId
+  target_col: Survived
+  test_size: 0.15
+  random_state: 42
+tuning:
+  n_folds: 5
+  max_evals: 10
+  scoring: accuracy
+paths:
+  model_path: models/
+  translator_path: models/fake/model_target_translator.pkl
+  reports_path: reports
+experiment_name: my_experiment

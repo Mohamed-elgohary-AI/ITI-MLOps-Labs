@@ -7,7 +7,7 @@ import kagglehub
 RAW_DATA_DIR = os.path.join("data", "raw")
 
 
-def download_iris_data(logger) -> str:
+def download_data(logger) -> str:
     logger.info("Downloading Titanic dataset from Kaggle...")
     load_dotenv()
 

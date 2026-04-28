@@ -1,0 +1,3 @@
+n_folds: 5
+max_evals: 10
+scoring: accuracy

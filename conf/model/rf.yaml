@@ -1,0 +1,28 @@
+# conf/model/rf.yaml
+name: rf
+save_dir: rf_model
+space:
+  n_estimators:
+    type: quniform
+    low: 100
+    high: 1000
+    step: 50
+    int: true
+  max_depth:
+    type: quniform
+    low: 3
+    high: 20
+    step: 1
+    int: true
+  min_samples_split:
+    type: quniform
+    low: 2
+    high: 10
+    step: 1
+    int: true
+  random_state:
+    type: quniform
+    low: 1
+    high: 100
+    step: 1
+    int: true
