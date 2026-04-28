@@ -1,0 +1,16 @@
+name: lr
+save_dir: lr_model
+space:
+  C:
+    _target_: hyperopt.hp.loguniform
+    label: C
+    low: -4
+    high: 4
+  max_iter:
+    _target_: hyperopt.hp.choice
+    label: max_iter
+    options: [100, 200, 500]
+  solver:
+    _target_: hyperopt.hp.choice
+    label: solver
+    options: [lbfgs, saga]

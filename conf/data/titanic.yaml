@@ -1,0 +1,7 @@
+raw_data_path: data/raw
+processed_data_path: data/processed
+file_name: train
+id_col: PassengerId
+target_col: Survived
+test_size: 0.15
+random_state: 42
