@@ -1,6 +1,6 @@
 # conf/model/xgb.yaml
 name: xgb
-save_dir: xgb_model
+save_dir: xgb
 space:
   n_estimators:
     type: quniform

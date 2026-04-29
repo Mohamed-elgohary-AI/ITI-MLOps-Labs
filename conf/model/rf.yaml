@@ -1,6 +1,6 @@
 # conf/model/rf.yaml
 name: rf
-save_dir: rf_model
+save_dir: rf
 space:
   n_estimators:
     type: quniform
