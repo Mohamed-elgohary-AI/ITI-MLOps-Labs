@@ -1,16 +1,31 @@
+# conf/model/lr.yaml
 name: lr
-save_dir: lr_model
+save_dir: lr
 space:
   C:
-    _target_: hyperopt.hp.loguniform
-    label: C
-    low: -4
-    high: 4
+    type: loguniform
+    low: -6.907
+    high: 4.605
   max_iter:
-    _target_: hyperopt.hp.choice
-    label: max_iter
-    options: [100, 200, 500]
-  solver:
-    _target_: hyperopt.hp.choice
-    label: solver
-    options: [lbfgs, saga]
+    type: quniform
+    low: 500
+    high: 5000
+    step: 100
+    int: true
+  tol:
+    type: loguniform
+    low: -13.816
+    high: -4.605
+  penalty:
+    type: choice
+    options: [l1, l2, elasticnet]
+  l1_ratio:
+    type: uniform
+    low: 0.0
+    high: 1.0
+  random_state:
+    type: quniform
+    low: 1
+    high: 100
+    step: 1
+    int: true

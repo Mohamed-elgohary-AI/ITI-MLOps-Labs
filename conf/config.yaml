@@ -6,7 +6,7 @@ defaults:
 
 paths:
   model_path: models/
-  translator_path: models/fake/model_target_translator.pkl
+  translator_path: models/${model.name}/model_target_translator.pkl
   reports_path: reports
 
 experiment_name: my_experiment
