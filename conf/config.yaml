@@ -8,5 +8,6 @@ paths:
   model_path: models/
   translator_path: models/${model.name}/model_target_translator.pkl
   reports_path: reports
+  preprocessor_path: models/preprocessor.pkl
 
 experiment_name: my_experiment

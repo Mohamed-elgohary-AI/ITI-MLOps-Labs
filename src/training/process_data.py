@@ -9,6 +9,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from omegaconf import DictConfig
 
+import hydra
+from src.logger import ExecutorLogger
+
 SOURCE = os.path.join("data", "raw")
 DESTINATION = os.path.join("data", "processed")
 
@@ -29,7 +32,7 @@ def read_process_data(
 
 def preprocess_data(
     X: pd.DataFrame, y: pd.Series, X_test: pd.DataFrame, y_test: pd.Series, logger
-) -> Tuple[Any, Any]:
+) -> Tuple[Any, Any, Any]:
     logger.info("Data Preprocessing Pipeline Started")
     num_cols = X.select_dtypes(include=["int", "float"]).columns
     cat_cols = X.select_dtypes(include="object").columns
@@ -50,7 +53,19 @@ def preprocess_data(
         ]
     )
 
+
     X_train_processed = preprocessor.fit_transform(X)
     X_test_processed = preprocessor.transform(X_test)
 
-    return X_train_processed, X_test_processed
+    return X_train_processed, X_test_processed, preprocessor
+
+
+@hydra.main(config_path="../../conf", config_name="config", version_base=None)
+def main(cfg: DictConfig) -> None:
+    logger = ExecutorLogger("process")
+    os.makedirs(DESTINATION, exist_ok=True)
+    read_process_data(cfg, logger)
+
+
+if __name__ == "__main__":
+    main()

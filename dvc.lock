@@ -69,8 +69,8 @@ stages:
     outs:
     - path: models/lr/final_model.pkl
       hash: md5
-      md5: c8f2580e102cdeb5df4fda9f3804fc84
-      size: 49116
+      md5: aff323da8be367c211a5d9ce0c3191c5
+      size: 80677
     - path: models/lr/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -99,8 +99,8 @@ stages:
     outs:
     - path: models/xgb/final_model.pkl
       hash: md5
-      md5: 746711fdd098301c56fec1c08e1917d5
-      size: 640995
+      md5: ec93fc84fba7f1381e4249419109b1a3
+      size: 1069591
     - path: models/xgb/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -129,8 +129,8 @@ stages:
     outs:
     - path: models/rf/final_model.pkl
       hash: md5
-      md5: 0ce02a8b3f1fa06ef722546b0eecdc31
-      size: 8746782
+      md5: 6c8f09bdf21f07503bb89a0e0186acd1
+      size: 2502324
     - path: models/rf/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -144,8 +144,8 @@ stages:
       size: 13640
     - path: models/lr/final_model.pkl
       hash: md5
-      md5: c8f2580e102cdeb5df4fda9f3804fc84
-      size: 49116
+      md5: aff323da8be367c211a5d9ce0c3191c5
+      size: 80677
     - path: models/lr/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -159,8 +159,8 @@ stages:
     outs:
     - path: reports/lr/evaluation_report.json
       hash: md5
-      md5: ec3113fc195c91fc9d644457b4a8d92d
-      size: 380
+      md5: 06e25258bb1f2ef63e32a1a53805d56e
+      size: 610
   evaluate_xgb:
     cmd: uv run python -m src.training.evaluate model=xgb
     deps:
@@ -170,8 +170,8 @@ stages:
       size: 13640
     - path: models/xgb/final_model.pkl
       hash: md5
-      md5: 746711fdd098301c56fec1c08e1917d5
-      size: 640995
+      md5: ec93fc84fba7f1381e4249419109b1a3
+      size: 1069591
     - path: models/xgb/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -185,8 +185,8 @@ stages:
     outs:
     - path: reports/xgb/evaluation_report.json
       hash: md5
-      md5: 94b048351bbf2b97535fa3bdc7925bcf
-      size: 374
+      md5: 7585e770d1809c34665707d4ae3e6d24
+      size: 617
   evaluate_rf:
     cmd: uv run python -m src.training.evaluate model=rf
     deps:
@@ -196,8 +196,8 @@ stages:
       size: 13640
     - path: models/rf/final_model.pkl
       hash: md5
-      md5: 0ce02a8b3f1fa06ef722546b0eecdc31
-      size: 8746782
+      md5: 6c8f09bdf21f07503bb89a0e0186acd1
+      size: 2502324
     - path: models/rf/model_target_translator.pkl
       hash: md5
       md5: 67f8259bfaa642dedda9e0caeb956015
@@ -211,5 +211,32 @@ stages:
     outs:
     - path: reports/rf/evaluation_report.json
       hash: md5
-      md5: f3d13e27f59e503e6518683f9f7d01ef
-      size: 380
+      md5: 72d9d2e47b0b427eb778e186c3ca1f41
+      size: 624
+  register:
+    cmd: uv run python -m src.training.register
+    deps:
+    - path: models/lr/final_model.pkl
+      hash: md5
+      md5: aff323da8be367c211a5d9ce0c3191c5
+      size: 80677
+    - path: models/rf/final_model.pkl
+      hash: md5
+      md5: 6c8f09bdf21f07503bb89a0e0186acd1
+      size: 2502324
+    - path: models/xgb/final_model.pkl
+      hash: md5
+      md5: ec93fc84fba7f1381e4249419109b1a3
+      size: 1069591
+    - path: reports/lr/evaluation_report.json
+      hash: md5
+      md5: 06e25258bb1f2ef63e32a1a53805d56e
+      size: 610
+    - path: reports/rf/evaluation_report.json
+      hash: md5
+      md5: 72d9d2e47b0b427eb778e186c3ca1f41
+      size: 624
+    - path: reports/xgb/evaluation_report.json
+      hash: md5
+      md5: 7585e770d1809c34665707d4ae3e6d24
+      size: 617

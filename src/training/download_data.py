@@ -1,20 +1,24 @@
 import os
 import shutil
 
+import hydra
 from dotenv import load_dotenv
+from omegaconf import DictConfig
 import kagglehub
 
-RAW_DATA_DIR = os.path.join("data", "raw")
+from src.logger import ExecutorLogger
 
 
-def download_data(logger) -> str:
-    logger.info("Downloading Titanic dataset from Kaggle...")
+@hydra.main(config_path="../../conf", config_name="config", version_base=None)
+def main(cfg: DictConfig) -> None:
+    logger = ExecutorLogger("download")
+    logger.info(f"Downloading {cfg.data.dataset_name} dataset from Kaggle...")
     load_dotenv()
 
     os.environ["KAGGLE_USERNAME"] = os.getenv("KAGGLE_USERNAME")
     os.environ["KAGGLE_KEY"] = os.getenv("KAGGLE_API_TOKEN")
 
-    path = kagglehub.competition_download("titanic")
+    path = kagglehub.competition_download(cfg.data.dataset_name)
 
     files = os.listdir(path)
     csv_files = [f for f in files if f.endswith(".csv")]
@@ -22,16 +26,16 @@ def download_data(logger) -> str:
     if not csv_files:
         csv_files = files
 
-    os.makedirs(RAW_DATA_DIR, exist_ok=True)
+    os.makedirs(cfg.data.raw_data_path, exist_ok=True)
 
     for csv_file in csv_files:
         source_file = os.path.join(path, csv_file)
-        destination = os.path.join(RAW_DATA_DIR, csv_file)  # keeps original filename
+        destination = os.path.join(cfg.data.raw_data_path, csv_file)
         shutil.copy(source_file, destination)
         logger.info(f"Copied {csv_file} to {destination}")
 
-    shutil.copy(source_file, destination)
-    print(destination)
+    logger.info(f"Dataset downloaded to {cfg.data.raw_data_path}")
 
-    logger.info(f"Titanic dataset downloaded to {RAW_DATA_DIR}")
-    return RAW_DATA_DIR
+
+if __name__ == "__main__":
+    main()

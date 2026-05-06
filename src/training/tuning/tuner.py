@@ -23,7 +23,7 @@ MODEL_BUILDERS = {
     "lr": lambda params: Pipeline(
         [
             ("scaler", StandardScaler()),
-            ("clf", LogisticRegression(**params)),
+            ("clf", LogisticRegression(**params, solver='saga')),
         ]
     ),
     "xgb": lambda params: XGBClassifier(**params),

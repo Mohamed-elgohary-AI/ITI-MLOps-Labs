@@ -11,7 +11,7 @@ def objective_lr(params, X, y):
     model = Pipeline(
         [
             ("scaler", StandardScaler()),
-            ("clf", LogisticRegression(**params)),
+            ("clf", LogisticRegression(**params, solver='saga')),
         ]
     )
     score = cross_val_score(model, X, y, cv=3, scoring="accuracy").mean()

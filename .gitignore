@@ -201,4 +201,4 @@ reports/*/*.csv
 reports/*/*.png
 reports/*/*.pdf
 reports/*/*.html
-reports/*/*.txt
+reports/*/*.txtinference/.env

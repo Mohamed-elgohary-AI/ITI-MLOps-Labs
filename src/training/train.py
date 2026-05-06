@@ -1,48 +1,27 @@
 import os
 import pickle
 
+import dagshub
+import hydra
+import mlflow
+import mlflow.sklearn
+import numpy as np
+import pandas as pd
 from hyperopt import hp
 from hyperopt.pyll import scope
-import numpy as np
-from omegaconf import DictConfig
-import pandas as pd
+from omegaconf import DictConfig, OmegaConf
+from sklearn.pipeline import Pipeline
+
+from src.logger import ExecutorLogger
 from .tuning.tuner import bayesian_opt
-from .tuning.objectives import objective_lr, objective_xgb
+from .process_data import preprocess_data
 
 SOURCE = os.path.join("data", "processed")
 MODEL_PATH = "models"
-N_FOLDS = 5
-MAX_EVALS = 5
-SPACE = {
-    "random_state": scope.int(hp.quniform("random_state", 2, 80, 1)),
-}
-SPACE_LR = {
-    "C": hp.loguniform("C", np.log(0.001), np.log(100)),
-    "max_iter": scope.int(hp.quniform("max_iter", 500, 5000, 100)),
-    "tol": hp.loguniform("tol", np.log(1e-6), np.log(1e-2)),
-    "penalty": hp.choice("penalty", ["l1", "l2", "elasticnet"]),
-    "l1_ratio": hp.uniform("l1_ratio", 0.0, 1.0),  # only used when penalty=elasticnet
-    "random_state": scope.int(hp.quniform("random_state", 1, 100, 1)),
-}
-SPACE_XGB = {
-    "n_estimators": scope.int(hp.quniform("n_estimators", 100, 1000, 50)),
-    "max_depth": scope.int(hp.quniform("max_depth", 3, 12, 1)),
-    "learning_rate": hp.loguniform("learning_rate", np.log(0.01), np.log(0.3)),
-    "subsample": hp.uniform("subsample", 0.5, 1.0),
-    "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1.0),
-    "colsample_bylevel": hp.uniform("colsample_bylevel", 0.5, 1.0),
-    "min_child_weight": scope.int(hp.quniform("min_child_weight", 1, 10, 1)),
-    "gamma": hp.loguniform("gamma", np.log(0.01), np.log(5)),
-    "reg_alpha": hp.loguniform("reg_alpha", np.log(1e-4), np.log(10)),
-    "reg_lambda": hp.loguniform("reg_lambda", np.log(1e-4), np.log(10)),
-    "random_state": scope.int(hp.quniform("random_state", 1, 100, 1)),
-}
+PROCESSED_DATA_DIR = os.path.join("data", "processed")
 
 
-def encode_target_col(
-    cfg: DictConfig,
-    logger,
-):
+def encode_target_col(cfg: DictConfig, logger):
     train_df = pd.read_parquet(os.path.join(SOURCE, f"{cfg.data.file_name}-train.parquet"))
     test_df = pd.read_parquet(os.path.join(SOURCE, f"{cfg.data.file_name}-test.parquet"))
     X_train, y_train = train_df.drop(cfg.data.target_col, axis=1), train_df[cfg.data.target_col]
@@ -51,7 +30,6 @@ def encode_target_col(
     logger.info(f"Number of classes: {len(y_train.unique())}")
     encoder = {class_: idx for idx, class_ in enumerate(y_train.unique())}
     decoder = {idx: class_ for class_, idx in encoder.items()}
-    # save the encoder/decoder of target
     label_translator = {"encoder": encoder, "decoder": decoder}
     logger.info("encoder/decoder of target created successfully")
     if not os.path.exists(os.path.join(MODEL_PATH, cfg.model.name)):
@@ -65,23 +43,57 @@ def encode_target_col(
     return X_train, y_train, X_test, y_test
 
 
-def trainer(X, y, cfg: DictConfig, logger) -> None:
-    # Load translator from config path
+def trainer(X, y, preprocessor, cfg: DictConfig, logger) -> None:
     logger.info("Loading encoder/decoder of target variable")
     with open(cfg.paths.translator_path, "rb") as pkl:
         translator = pickle.load(pkl)
 
     y_train_enc = y.apply(lambda x: translator["encoder"][x])
-
-    # Train whichever model is set in config
     model = bayesian_opt(X, y_train_enc, cfg, logger)
 
-    # Save to config-driven path
+    if hasattr(model, "best_score_"):
+        mlflow.log_metric("best_score", model.best_score_)
+    if hasattr(model, "best_iteration"):
+        mlflow.log_metric("best_iteration", model.best_iteration)
+
+    # Combine preprocessor and model into a single pipeline
+    full_pipeline = Pipeline([
+        ("preprocessor", preprocessor),
+        ("model", model)
+    ])
+
     save_dir = os.path.join(cfg.paths.model_path, cfg.model.save_dir)
     os.makedirs(save_dir, exist_ok=True)
-
     save_path = os.path.join(save_dir, "final_model.pkl")
     with open(save_path, "wb") as pkl:
-        pickle.dump(model, pkl)
+        pickle.dump(full_pipeline, pkl)
 
-    logger.info(f"Model saved to {save_path}")
+    mlflow.sklearn.log_model(
+        sk_model=full_pipeline,
+        artifact_path="model",
+        registered_model_name=f"{cfg.model.name}-classifier"
+    )
+    logger.info(f"Full pipeline saved to {save_path}")
+
+
+@hydra.main(config_path="../../conf", config_name="config", version_base=None)
+def main(cfg: DictConfig) -> None:
+    dagshub.init(
+        repo_name="ITI-MLOps-Labs",
+        repo_owner="mohamedabdelmonemelgohary"
+    )
+    mlflow.set_experiment(cfg.model.name)
+
+    with mlflow.start_run(run_name=f"{cfg.model.name}-train"):
+        mlflow.log_params(OmegaConf.to_container(cfg, resolve=True))
+        logger = ExecutorLogger("training")
+        OmegaConf.save(cfg, "config.yaml", resolve=True)
+        X_train, y_train, X_test, y_test = encode_target_col(cfg, logger)
+        X_processed, X_test_processed, preprocessor = preprocess_data(
+            X_train, y_train, X_test, y_test, logger
+        )
+        trainer(X_processed, y_train, preprocessor, cfg, logger)
+
+
+if __name__ == "__main__":
+    main()

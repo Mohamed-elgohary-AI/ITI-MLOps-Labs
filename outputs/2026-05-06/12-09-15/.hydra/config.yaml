@@ -1,0 +1,53 @@
+model:
+  name: lr
+  save_dir: lr
+  space:
+    C:
+      type: loguniform
+      low: -6.907
+      high: 4.605
+    max_iter:
+      type: quniform
+      low: 500
+      high: 5000
+      step: 100
+      int: true
+    tol:
+      type: loguniform
+      low: -13.816
+      high: -4.605
+    penalty:
+      type: choice
+      options:
+      - l1
+      - l2
+      - elasticnet
+    l1_ratio:
+      type: uniform
+      low: 0.0
+      high: 1.0
+    random_state:
+      type: quniform
+      low: 1
+      high: 100
+      step: 1
+      int: true
+data:
+  dataset_name: titanic
+  raw_data_path: data/raw
+  processed_data_path: data/processed
+  file_name: train
+  id_col: PassengerId
+  target_col: Survived
+  test_size: 0.15
+  random_state: 42
+tuning:
+  n_folds: 5
+  max_evals: 10
+  scoring: accuracy
+paths:
+  model_path: models/
+  translator_path: models/${model.name}/model_target_translator.pkl
+  reports_path: reports
+  preprocessor_path: models/preprocessor.pkl
+experiment_name: my_experiment
