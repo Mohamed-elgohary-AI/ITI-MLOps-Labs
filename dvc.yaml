@@ -1,0 +1,129 @@
+stages:
+  download:
+    cmd: uv run python -m src.training.download_data
+    params:
+    - conf/data/titanic.yaml:
+      - dataset_name
+    outs:
+    - data/raw/gender_submission.csv
+    - data/raw/test.csv
+    - data/raw/train.csv
+  process:
+    cmd: uv run python -m src.training.process_data
+    deps:
+    - data/raw/train.csv
+    params:
+    - conf/data/titanic.yaml:
+      - file_name
+      - id_col
+      - random_state
+      - target_col
+      - test_size
+    outs:
+    - data/processed/train-test.parquet
+    - data/processed/train-train.parquet
+  train_lr:
+    cmd: uv run python -m src.training.train model=lr
+    deps:
+    - data/processed/train-test.parquet
+    - data/processed/train-train.parquet
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/lr.yaml:
+      - name
+      - save_dir
+    - conf/tuning/hyperopt.yaml:
+      - max_evals
+      - n_folds
+      - scoring
+    outs:
+    - models/lr/final_model.pkl
+    - models/lr/model_target_translator.pkl
+  train_xgb:
+    cmd: uv run python -m src.training.train model=xgb
+    deps:
+    - data/processed/train-test.parquet
+    - data/processed/train-train.parquet
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/xgb.yaml:
+      - name
+      - save_dir
+    - conf/tuning/hyperopt.yaml:
+      - max_evals
+      - n_folds
+      - scoring
+    outs:
+    - models/xgb/final_model.pkl
+    - models/xgb/model_target_translator.pkl
+  train_rf:
+    cmd: uv run python -m src.training.train model=rf
+    deps:
+    - data/processed/train-test.parquet
+    - data/processed/train-train.parquet
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/rf.yaml:
+      - name
+      - save_dir
+    - conf/tuning/hyperopt.yaml:
+      - max_evals
+      - n_folds
+      - scoring
+    outs:
+    - models/rf/final_model.pkl
+    - models/rf/model_target_translator.pkl
+  evaluate_lr:
+    cmd: uv run python -m src.training.evaluate model=lr
+    deps:
+    - data/processed/train-test.parquet
+    - models/lr/final_model.pkl
+    - models/lr/model_target_translator.pkl
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/lr.yaml:
+      - name
+      - save_dir
+    outs:
+    - reports/lr/evaluation_report.json
+  evaluate_xgb:
+    cmd: uv run python -m src.training.evaluate model=xgb
+    deps:
+    - data/processed/train-test.parquet
+    - models/xgb/final_model.pkl
+    - models/xgb/model_target_translator.pkl
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/xgb.yaml:
+      - name
+      - save_dir
+    outs:
+    - reports/xgb/evaluation_report.json
+  evaluate_rf:
+    cmd: uv run python -m src.training.evaluate model=rf
+    deps:
+    - data/processed/train-test.parquet
+    - models/rf/final_model.pkl
+    - models/rf/model_target_translator.pkl
+    params:
+    - conf/data/titanic.yaml:
+      - target_col
+    - conf/model/rf.yaml:
+      - name
+      - save_dir
+    outs:
+    - reports/rf/evaluation_report.json
+  register:
+    cmd: uv run python -m src.training.register
+    deps:
+    - models/lr/final_model.pkl
+    - models/rf/final_model.pkl
+    - models/xgb/final_model.pkl
+    - reports/lr/evaluation_report.json
+    - reports/rf/evaluation_report.json
+    - reports/xgb/evaluation_report.json

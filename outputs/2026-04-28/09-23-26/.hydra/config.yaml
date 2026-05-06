@@ -1,0 +1,39 @@
+model:
+  name: lr
+  save_dir: lr_model
+  space:
+    C:
+      _target_: hyperopt.hp.loguniform
+      label: C
+      low: -4
+      high: 4
+    max_iter:
+      _target_: hyperopt.hp.choice
+      label: max_iter
+      options:
+      - 100
+      - 200
+      - 500
+    solver:
+      _target_: hyperopt.hp.choice
+      label: solver
+      options:
+      - lbfgs
+      - saga
+data:
+  raw_data_path: data/raw
+  processed_data_path: data/processed
+  file_name: train
+  id_col: PassengerId
+  target_col: Survived
+  test_size: 0.15
+  random_state: 42
+tuning:
+  n_folds: 5
+  max_evals: 10
+  scoring: accuracy
+paths:
+  model_path: models/
+  translator_path: models/${model.name}/model_target_translator.pkl
+  reports_path: reports
+experiment_name: my_experiment
