@@ -1,0 +1,75 @@
+model:
+  name: xgb
+  save_dir: xgb
+  space:
+    n_estimators:
+      type: quniform
+      low: 100
+      high: 1000
+      step: 50
+      int: true
+    max_depth:
+      type: quniform
+      low: 3
+      high: 12
+      step: 1
+      int: true
+    learning_rate:
+      type: loguniform
+      low: -4.605
+      high: -1.204
+    subsample:
+      type: uniform
+      low: 0.5
+      high: 1.0
+    colsample_bytree:
+      type: uniform
+      low: 0.5
+      high: 1.0
+    colsample_bylevel:
+      type: uniform
+      low: 0.5
+      high: 1.0
+    min_child_weight:
+      type: quniform
+      low: 1
+      high: 10
+      step: 1
+      int: true
+    gamma:
+      type: loguniform
+      low: -4.605
+      high: 1.609
+    reg_alpha:
+      type: loguniform
+      low: -9.21
+      high: 2.303
+    reg_lambda:
+      type: loguniform
+      low: -9.21
+      high: 2.303
+    random_state:
+      type: quniform
+      low: 1
+      high: 100
+      step: 1
+      int: true
+data:
+  dataset_name: titanic
+  raw_data_path: data/raw
+  processed_data_path: data/processed
+  file_name: train
+  id_col: PassengerId
+  target_col: Survived
+  test_size: 0.15
+  random_state: 42
+tuning:
+  n_folds: 5
+  max_evals: 10
+  scoring: accuracy
+paths:
+  model_path: models/
+  translator_path: models/${model.name}/model_target_translator.pkl
+  reports_path: reports
+  preprocessor_path: models/preprocessor.pkl
+experiment_name: my_experiment
